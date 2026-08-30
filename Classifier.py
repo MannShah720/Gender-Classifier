@@ -28,8 +28,6 @@ Y = [
     'female', 'female', 'female', 'male', 'male'
 ]
 
-
-# New person we want to classify
 NEW_DATA = [[190, 70, 43]]
 
 
@@ -43,14 +41,9 @@ df = pd.DataFrame(
 df['gender'] = Y
 
 
-# Separate features and target
-
 new_X = df[['height', 'weight', 'shoe_size']]
 new_Y = df['gender']
 
-
-# Convert new data into a DataFrame
-# so it has the same feature names as the training data
 
 new_unseen_data = pd.DataFrame(
     NEW_DATA,
@@ -90,7 +83,7 @@ lr_score = accuracy_score(Y_test, lr_test_predictions)
 lr_unseen_prediction = lr_clf.predict(new_unseen_data)
 
 
-# ========== K-NN ==========
+# ========== K-NN with 3 neighbors ==========
 
 clf_knn = KNeighborsClassifier(n_neighbors=3)
 clf_knn.fit(X_train, Y_train)
@@ -99,6 +92,16 @@ knn_test_predictions = clf_knn.predict(X_test)
 knn_score = accuracy_score(Y_test, knn_test_predictions)
 
 knn_unseen_prediction = clf_knn.predict(new_unseen_data)
+
+# ========== K-NN with 5 neighbors ==========
+
+clf_knn_5 = KNeighborsClassifier(n_neighbors=5)
+clf_knn_5.fit(X_train, Y_train)
+
+knn_5_test_predictions = clf_knn_5.predict(X_test)
+knn_5_score = accuracy_score(Y_test, knn_5_test_predictions)
+
+knn_5_unseen_prediction = clf_knn_5.predict(new_unseen_data)
 
 
 # ========== Comparing the Results ==========
@@ -122,9 +125,15 @@ print(
 )
 
 print(
-    f"{'K-NN':<25} "
+    f"{'K-NN (3 neighbors)':<25} "
     f"{knn_unseen_prediction[0]:<12} "
     f"{knn_score * 100:>9.2f}%"
+)
+
+print(
+    f"{'K-NN (5 neighbors)':<25} "
+     f"{knn_5_unseen_prediction[0]:<12} "
+     f"{knn_5_score * 100:>9.2f}%"
 )
 
 print("-" * 55)
