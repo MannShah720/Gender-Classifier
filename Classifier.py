@@ -1,46 +1,71 @@
+import pandas as pd
 from sklearn import tree
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 
-# Mock Data [height (cm), weight (kg), shoe_size]
-NEW_DATA = [[190, 70, 43]]
+# Mock Data [height (cm), weight (kg), shoe_size (EU)]
+X = [
+    [181, 80, 44],
+    [177, 70, 43],
+    [160, 60, 38],
+    [154, 54, 37],
+    [166, 65, 40],
+    [190, 90, 47],
+    [175, 64, 39],
+    [177, 70, 40],
+    [159, 55, 37],
+    [171, 75, 42],
+    [181, 85, 43]
+]
 
-X = [[181, 80, 44], [177, 70, 43], [160, 60, 38], [154, 54, 37], [166, 65, 40],
-     [190, 90, 47], [175, 64, 39],
-     [177, 70, 40], [159, 55, 37], [171, 75, 42], [181, 85, 43]]
+Y = [
+    'male', 'male', 'female', 'female', 'male', 'male',
+    'female', 'female', 'female', 'male', 'male'
+]
 
-Y = ['male', 'male', 'female', 'female', 'male', 'male', 'female', 'female',
-     'female', 'male', 'male']
+UNSEEN_DATA = [[190, 70, 43]]
 
-# Train / Test Split
-X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    Y,
+# ========== Tabulate Data ==========
+df = pd.DataFrame(X, columns=['height', 'weight', 'shoe_size'])
+df['gender'] = Y
+
+new_X = df[['height', 'weight', 'shoe_size']]
+new_Y = df['gender']
+
+new_unseen_data = pd.DataFrame(
+    UNSEEN_DATA,
+    columns=['height', 'weight', 'shoe_size']
+)
+
+# ========== Train / Test Split ==========
+X_train, X_test, Y_train, Y_test = train_test_split(
+    new_X,
+    new_Y,
     test_size=0.2,
     random_state=42
 )
 
-# Decision Tree
+# ========== Decision Tree ==========
 dt_clf = tree.DecisionTreeClassifier()
-dt_clf = dt_clf.fit(X_train, y_train)
-dt_prediction = dt_clf.predict(NEW_DATA)
-dt_score = dt_clf.score(X_test, y_test)
+dt_clf = dt_clf.fit(X_train, Y_train)
+dt_prediction = dt_clf.predict(new_unseen_data)
+dt_score = dt_clf.score(X_test, Y_test)
 
-# Logistic Regression
+# ========== Logistic Regression ==========
 lr_clf = LogisticRegression()
-lr_clf = lr_clf.fit(X_train, y_train)
-lr_prediction = lr_clf.predict(NEW_DATA)
-lr_score = lr_clf.score(X_test, y_test)
+lr_clf = lr_clf.fit(X_train, Y_train)
+lr_prediction = lr_clf.predict(new_unseen_data)
+lr_score = lr_clf.score(X_test, Y_test)
 
-# K-NN
+# ========== K-NN ==========
 clf_knn = KNeighborsClassifier(n_neighbors=3)
-clf_knn.fit(X_train, y_train)
-knn_prediction = clf_knn.predict(NEW_DATA)
-knn_score = clf_knn.score(X_test, y_test)
+clf_knn.fit(X_train, Y_train)
+knn_prediction = clf_knn.predict(new_unseen_data)
+knn_score = clf_knn.score(X_test, Y_test)
 
-# Comparing the results
-print(f"\nPrediction for {NEW_DATA[0]}:")
+# ========== Comparing the results ==========
+print(f"\nPrediction for {new_unseen_data.iloc[0].tolist()}:")
 print("-" * 55)
 
 print(f"{'Model':<25} {'Prediction':<12} {'Accuracy':>10}")
