@@ -3,8 +3,12 @@ from sklearn import tree
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
-# Mock Data [height (cm), weight (kg), shoe_size (EU)]
+
+# ========== Mock Data ==========
+# Features: height (cm), weight (kg), shoe_size (EU)
+
 X = [
     [181, 80, 44],
     [177, 70, 43],
@@ -24,21 +28,38 @@ Y = [
     'female', 'female', 'female', 'male', 'male'
 ]
 
-UNSEEN_DATA = [[190, 70, 43]]
+
+# New person we want to classify
+NEW_DATA = [[190, 70, 43]]
+
 
 # ========== Tabulate Data ==========
-df = pd.DataFrame(X, columns=['height', 'weight', 'shoe_size'])
+
+df = pd.DataFrame(
+    X,
+    columns=['height', 'weight', 'shoe_size']
+)
+
 df['gender'] = Y
+
+
+# Separate features and target
 
 new_X = df[['height', 'weight', 'shoe_size']]
 new_Y = df['gender']
 
+
+# Convert new data into a DataFrame
+# so it has the same feature names as the training data
+
 new_unseen_data = pd.DataFrame(
-    UNSEEN_DATA,
+    NEW_DATA,
     columns=['height', 'weight', 'shoe_size']
 )
 
+
 # ========== Train / Test Split ==========
+
 X_train, X_test, Y_train, Y_test = train_test_split(
     new_X,
     new_Y,
@@ -46,33 +67,64 @@ X_train, X_test, Y_train, Y_test = train_test_split(
     random_state=42
 )
 
+
 # ========== Decision Tree ==========
+
 dt_clf = tree.DecisionTreeClassifier()
-dt_clf = dt_clf.fit(X_train, Y_train)
-dt_prediction = dt_clf.predict(new_unseen_data)
-dt_score = dt_clf.score(X_test, Y_test)
+dt_clf.fit(X_train, Y_train)
+
+dt_test_predictions = dt_clf.predict(X_test)
+dt_score = accuracy_score(Y_test, dt_test_predictions)
+
+dt_unseen_prediction = dt_clf.predict(new_unseen_data)
+
 
 # ========== Logistic Regression ==========
+
 lr_clf = LogisticRegression()
-lr_clf = lr_clf.fit(X_train, Y_train)
-lr_prediction = lr_clf.predict(new_unseen_data)
-lr_score = lr_clf.score(X_test, Y_test)
+lr_clf.fit(X_train, Y_train)
+
+lr_test_predictions = lr_clf.predict(X_test)
+lr_score = accuracy_score(Y_test, lr_test_predictions)
+
+lr_unseen_prediction = lr_clf.predict(new_unseen_data)
+
 
 # ========== K-NN ==========
+
 clf_knn = KNeighborsClassifier(n_neighbors=3)
 clf_knn.fit(X_train, Y_train)
-knn_prediction = clf_knn.predict(new_unseen_data)
-knn_score = clf_knn.score(X_test, Y_test)
 
-# ========== Comparing the results ==========
+knn_test_predictions = clf_knn.predict(X_test)
+knn_score = accuracy_score(Y_test, knn_test_predictions)
+
+knn_unseen_prediction = clf_knn.predict(new_unseen_data)
+
+
+# ========== Comparing the Results ==========
+
 print(f"\nPrediction for {new_unseen_data.iloc[0].tolist()}:")
 print("-" * 55)
 
 print(f"{'Model':<25} {'Prediction':<12} {'Accuracy':>10}")
 print("-" * 55)
 
-print(f"{'Decision Tree':<25} {dt_prediction[0]:<12} {dt_score * 100:>9.2f}%")
-print(f"{'Logistic Regression':<25} {lr_prediction[0]:<12} {lr_score * 100:>9.2f}%")
-print(f"{'K-NN':<25} {knn_prediction[0]:<12} {knn_score * 100:>9.2f}%")
+print(
+    f"{'Decision Tree':<25} "
+    f"{dt_unseen_prediction[0]:<12} "
+    f"{dt_score * 100:>9.2f}%"
+)
+
+print(
+    f"{'Logistic Regression':<25} "
+    f"{lr_unseen_prediction[0]:<12} "
+    f"{lr_score * 100:>9.2f}%"
+)
+
+print(
+    f"{'K-NN':<25} "
+    f"{knn_unseen_prediction[0]:<12} "
+    f"{knn_score * 100:>9.2f}%"
+)
 
 print("-" * 55)
